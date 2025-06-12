@@ -1,0 +1,66 @@
+﻿using Inversiones_moronta.Data;
+using Inversiones_moronta.models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace tarea_2_programacion_2.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class InversionesController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+
+        public InversionesController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Inversion>>> GetInversiones()
+        {
+            return await _context.Inversiones.ToListAsync();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Inversion>> GetInversion(int id)
+        {
+            var inversion = await _context.Inversiones.FindAsync(id);
+            if (inversion == null)
+                return NotFound();
+
+            return inversion;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Inversion>> PostInversion(Inversion inversion)
+        {
+            _context.Inversiones.Add(inversion);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetInversion), new { id = inversion.Id }, inversion);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutInversion(int id, Inversion inversion)
+        {
+            if (id != inversion.Id)
+                return BadRequest();
+
+            _context.Entry(inversion).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteInversion(int id)
+        {
+            var inversion = await _context.Inversiones.FindAsync(id);
+            if (inversion == null)
+                return NotFound();
+
+            _context.Inversiones.Remove(inversion);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+    }
+}
